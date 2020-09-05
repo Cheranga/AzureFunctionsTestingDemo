@@ -14,37 +14,37 @@ using Newtonsoft.Json;
 
 namespace FunkyCustomerCare.Functions
 {
-    public class RegisterCustomerFunction
+    public class CategorizeCustomerFunction
     {
-        private readonly IRegisterCustomerService _registerCustomerService;
+        private readonly ICategorizeCustomerService _categorizeCustomerService;
         private readonly ICreateBlobService _blobService;
-        private readonly ILogger<RegisterCustomerFunction> _logger;
+        private readonly ILogger<CategorizeCustomerFunction> _logger;
 
-        public RegisterCustomerFunction(IRegisterCustomerService registerCustomerService, ICreateBlobService blobService, ILogger<RegisterCustomerFunction> logger)
+        public CategorizeCustomerFunction(ICategorizeCustomerService categorizeCustomerService, ICreateBlobService blobService, ILogger<CategorizeCustomerFunction> logger)
         {
-            _registerCustomerService = registerCustomerService;
+            _categorizeCustomerService = categorizeCustomerService;
             _blobService = blobService;
             _logger = logger;
         }
 
-        [FunctionName(nameof(RegisterCustomerFunction))]
+        [FunctionName(nameof(CategorizeCustomerFunction))]
         public async Task<IActionResult> CreateAsync([HttpTrigger(AuthorizationLevel.Function, "post", Route = "customers")]
             HttpRequest request,
             IBinder binder)
         {
-            var operation = await request.GetModel<RegisterCustomerRequest>();
+            var operation = await request.GetModel<CategorizeCustomerRequest>();
             if (!operation.Status)
             {
                 return new BadRequestResult();
             }
 
-            var registerCustomerOperation = await _registerCustomerService.RegisterAsync(operation.Data);
-            if (!registerCustomerOperation.Status)
+            var categorizeCustomerOperation = await _categorizeCustomerService.CategorizeAsync(operation.Data);
+            if (!categorizeCustomerOperation.Status)
             {
                 return new InternalServerErrorResult();
             }
 
-            if (registerCustomerOperation.Data == CustomerCategory.Vip)
+            if (categorizeCustomerOperation.Data == CustomerCategory.Vip)
             {
                 await _blobService.CreateBlobAsync(binder, new CreateBlobRequest("vip-customers", operation.Data.Id, JsonConvert.SerializeObject(operation.Data)));
             }

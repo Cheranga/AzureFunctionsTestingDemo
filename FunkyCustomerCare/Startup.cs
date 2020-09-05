@@ -48,7 +48,7 @@ namespace FunkyCustomerCare
                 return customerApiConfig;
             });
 
-            services.AddHttpClient<IRegisterCustomerService, RegisterCustomerService>((provider, client) =>
+            services.AddHttpClient<ICategorizeCustomerService, CategorizeCustomerService>((provider, client) =>
             {
                 var config = provider.GetRequiredService<CustomerApiConfig>();
                 client.BaseAddress = new Uri(config?.Url);

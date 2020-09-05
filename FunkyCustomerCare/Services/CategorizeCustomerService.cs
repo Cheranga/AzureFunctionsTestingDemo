@@ -7,18 +7,18 @@ using Microsoft.Extensions.Logging;
 
 namespace FunkyCustomerCare.Services
 {
-    public class RegisterCustomerService : IRegisterCustomerService
+    public class CategorizeCustomerService : ICategorizeCustomerService
     {
         private readonly HttpClient _httpClient;
-        private readonly ILogger<RegisterCustomerService> _logger;
+        private readonly ILogger<CategorizeCustomerService> _logger;
 
-        public RegisterCustomerService(HttpClient httpClient, ILogger<RegisterCustomerService> logger)
+        public CategorizeCustomerService(HttpClient httpClient, ILogger<CategorizeCustomerService> logger)
         {
             _httpClient = httpClient;
             _logger = logger;
         }
 
-        public async Task<Result<CustomerCategory>> RegisterAsync(RegisterCustomerRequest request)
+        public async Task<Result<CustomerCategory>> CategorizeAsync(CategorizeCustomerRequest request)
         {
             try
             {
@@ -32,10 +32,10 @@ namespace FunkyCustomerCare.Services
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "Error occured when registering customer.");
+                _logger.LogError(exception, "Error occured when categorizing customer.");
             }
 
-            return Result<CustomerCategory>.Failure("Error occured when registering the customer.");
+            return Result<CustomerCategory>.Failure("Error occured when categorizing the customer.");
 
         }
     }
