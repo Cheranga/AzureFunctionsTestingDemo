@@ -1,0 +1,15 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+
+    "LocalRuntimeSettings:DotnetExecutablePath": "%ProgramFiles%\\dotnet\\dotnet.exe",
+    "LocalRuntimeSettings:FunctionHostPath": "%APPDATA%\\npm\\node_modules\\azure-functions-core-tools\\bin\\func.dll",
+    "LocalRuntimeSettings:FunctionApplicationPath": "..\\..\\..\\..\\FunkyCustomerCare\\bin\\Debug\\netcoreapp3.1",
+    "CustomerApiConfig:Url": "https://www.microsoft.com.au",
+    "StorageAccountConfiguration:ConnectionString": "UseDevelopmentStorage=true",
+    "StorageAccountConfiguration:VipContainer": "vip-customers",
+    "StorageAccountConfiguration:RegularContainer": "regular-customers"
+  }
+}

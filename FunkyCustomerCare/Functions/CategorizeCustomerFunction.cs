@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using System.Web.Http;
+using FluentValidation;
 using FunkyCustomerCare.DTO;
 using FunkyCustomerCare.Extensions;
 using FunkyCustomerCare.Models;
@@ -18,24 +19,26 @@ namespace FunkyCustomerCare.Functions
     {
         private readonly ICategorizeCustomerService _categorizeCustomerService;
         private readonly ICreateBlobService _blobService;
+        private readonly IValidator<CategorizeCustomerRequest> _validator;
         private readonly ILogger<CategorizeCustomerFunction> _logger;
 
-        public CategorizeCustomerFunction(ICategorizeCustomerService categorizeCustomerService, ICreateBlobService blobService, ILogger<CategorizeCustomerFunction> logger)
+        public CategorizeCustomerFunction(ICategorizeCustomerService categorizeCustomerService, ICreateBlobService blobService, 
+            IValidator<CategorizeCustomerRequest> validator, ILogger<CategorizeCustomerFunction> logger)
         {
             _categorizeCustomerService = categorizeCustomerService;
             _blobService = blobService;
+            _validator = validator;
             _logger = logger;
         }
 
         [FunctionName(nameof(CategorizeCustomerFunction))]
         public async Task<IActionResult> CreateAsync([HttpTrigger(AuthorizationLevel.Function, "post", Route = "customers")]
-            HttpRequest request,
-            IBinder binder)
+            HttpRequest request)
         {
             var operation = await request.GetModel<CategorizeCustomerRequest>();
-            if (!operation.Status)
+            if (!operation.Status || !_validator.Validate(operation.Data).IsValid)
             {
-                return new BadRequestResult();
+                return new BadRequestObjectResult("Invalid Request");
             }
 
             var categorizeCustomerOperation = await _categorizeCustomerService.CategorizeAsync(operation.Data);
@@ -46,12 +49,12 @@ namespace FunkyCustomerCare.Functions
 
             if (categorizeCustomerOperation.Data == CustomerCategory.Vip)
             {
-                await _blobService.CreateBlobAsync(binder, new CreateBlobRequest("vip-customers", operation.Data.Id, JsonConvert.SerializeObject(operation.Data)));
+                await _blobService.CreateBlobAsync(new CreateBlobRequest("vip-customers", operation.Data.Id, JsonConvert.SerializeObject(operation.Data)));
             }
 
             else
             {
-                await _blobService.CreateBlobAsync(binder, new CreateBlobRequest("regular-customers", operation.Data.Id, JsonConvert.SerializeObject(operation.Data)));
+                await _blobService.CreateBlobAsync(new CreateBlobRequest("regular-customers", operation.Data.Id, JsonConvert.SerializeObject(operation.Data)));
             }
 
             return new AcceptedResult();

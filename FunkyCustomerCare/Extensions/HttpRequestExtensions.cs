@@ -31,7 +31,7 @@ namespace FunkyCustomerCare.Extensions
 
                 return Result<TModel>.Success(model);
             }
-            catch (Exception exception)
+            catch
             {
                 // ignore
             }

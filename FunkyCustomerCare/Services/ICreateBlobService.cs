@@ -8,6 +8,6 @@ namespace FunkyCustomerCare.Services
 {
     public interface ICreateBlobService
     {
-        Task<Result> CreateBlobAsync(IBinder binder, CreateBlobRequest request);
+        Task<Result> CreateBlobAsync(CreateBlobRequest request);
     }
 }

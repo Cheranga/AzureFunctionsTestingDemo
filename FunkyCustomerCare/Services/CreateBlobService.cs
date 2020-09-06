@@ -1,10 +1,12 @@
 ﻿using System;
 using System.IO;
+using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
+using Azure.Storage.Blobs;
+using FunkyCustomerCare.Config;
 using FunkyCustomerCare.Core;
-using FunkyCustomerCare.Functions;
 using FunkyCustomerCare.Models;
-using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 
 namespace FunkyCustomerCare.Services
@@ -12,25 +14,40 @@ namespace FunkyCustomerCare.Services
     public class CreateBlobService : ICreateBlobService
     {
         private readonly ILogger<CreateBlobService> _logger;
+        private readonly StorageAccountConfiguration _storageAccountConfiguration;
 
-        public CreateBlobService(ILogger<CreateBlobService> logger)
+        public CreateBlobService(StorageAccountConfiguration storageAccountConfiguration, ILogger<CreateBlobService> logger)
         {
+            _storageAccountConfiguration = storageAccountConfiguration;
             _logger = logger;
         }
 
-        public async Task<Result> CreateBlobAsync(IBinder binder, CreateBlobRequest request)
+        public async Task<Result> CreateBlobAsync(CreateBlobRequest request)
         {
             try
             {
-                var filePath = $"{request.Container}/{request.FileName}";
-                var dynamicBlobBinding = new BlobAttribute(filePath, FileAccess.Write);
+                var blobServiceClient = new BlobServiceClient(_storageAccountConfiguration.ConnectionString);
 
-                using (var writer = binder.Bind<TextWriter>(dynamicBlobBinding))
+                var blobContainerClient = blobServiceClient.GetBlobContainerClient(request.Container);
+                var containerExists = await blobContainerClient.ExistsAsync(CancellationToken.None);
+                if (!containerExists)
                 {
-                    await writer.WriteAsync(request.Content);
+                    return Result.Failure($"{request.Container} does not exist.");
                 }
 
-                return Result.Success();
+                var blobClient = blobContainerClient.GetBlobClient(request.FileName);
+
+                var memoryStream = new MemoryStream();
+                var streamWriter = new StreamWriter(memoryStream) {AutoFlush = true};
+
+                await streamWriter.WriteAsync(request.Content);
+                memoryStream.Position = 0;
+
+                var uploadResponse = await blobClient.UploadAsync(memoryStream, true, CancellationToken.None);
+
+                var isCreated = uploadResponse?.GetRawResponse()?.Status == (int) HttpStatusCode.Created;
+
+                return isCreated ? Result.Success() : Result.Failure("Error when creating the blob.");
             }
             catch (Exception exception)
             {

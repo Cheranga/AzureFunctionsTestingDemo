@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using FluentValidation;
 using FunkyCustomerCare;
 using FunkyCustomerCare.Config;
 using FunkyCustomerCare.Functions;
 using FunkyCustomerCare.Services;
+using FunkyCustomerCare.Validators;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Azure.WebJobs.Host.Bindings;
 using Microsoft.Extensions.Configuration;
@@ -42,10 +45,18 @@ namespace FunkyCustomerCare
 
             services.AddSingleton(provider =>
             {
-                var customerApiConfig = new CustomerApiConfig();
-                configuration.GetSection("Values:CustomerApiConfig").Bind(customerApiConfig);
+                var config = new CustomerApiConfig();
+                configuration.GetSection("Values:CustomerApiConfig").Bind(config);
 
-                return customerApiConfig;
+                return config;
+            });
+
+            services.AddSingleton(provider =>
+            {
+                var config = new StorageAccountConfiguration();
+                configuration.GetSection("Values:StorageAccountConfiguration").Bind(config);
+
+                return config;
             });
 
             services.AddHttpClient<ICategorizeCustomerService, CategorizeCustomerService>((provider, client) =>
@@ -55,6 +66,8 @@ namespace FunkyCustomerCare
             });
 
             services.AddSingleton<ICreateBlobService, CreateBlobService>();
+
+            services.AddValidatorsFromAssembly(typeof(Startup).Assembly, ServiceLifetime.Singleton);
         }
 
         public override void Configure(IFunctionsHostBuilder builder)
