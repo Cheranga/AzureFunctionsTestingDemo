@@ -1,0 +1,23 @@
+parameters:
+  operation: ''
+  displayName: ''
+
+steps:
+  - task: AzureResourceManagerTemplateDeployment@3
+    displayName: '${{parameters.displayName}}'
+    inputs:
+      deploymentScope: 'Resource Group'
+      azureResourceManagerConnection: '$(azureSubscription)'      
+      action: 'Create Or Update Resource Group'
+      resourceGroupName: 'cchatdemorg'
+      location: 'Australia Southeast'
+      templateLocation: 'Linked artifact'              
+      csmFile: '$(Pipeline.Workspace)/deploy/template.json'
+      csmParametersFile: '$(Pipeline.Workspace)/deploy/template.parameters.json'
+      overrideParameters: |
+        -appName "$(functionAppName)" 
+        -CustomerApiConfig:Url "$(customerApiConfig.Url)"         
+        -StorageAccountConfiguration.VipContainer "$(storageAccountConfiguration.VipContainer)" 
+        -StorageAccountConfiguration.RegularContainer "$(storageAccountConfiguration.RegularContainer)" 
+        
+      deploymentMode: '${{parameters.operation}}'

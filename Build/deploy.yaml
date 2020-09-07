@@ -1,0 +1,13 @@
+steps:
+
+- template: 'templates/setupARM.yaml'  
+  parameters:            
+    operation: 'Validate'
+    displayName: 'Validate function app deployment'   
+
+- template: 'templates/setupARM.yaml'  
+  parameters:            
+    operation: 'Incremental'  
+    displayName: 'Deploy function app infrastructure'       
+    
+- template: 'templates/deployFunctionApp.yaml'

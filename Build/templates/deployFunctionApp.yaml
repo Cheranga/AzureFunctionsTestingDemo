@@ -1,0 +1,8 @@
+steps:
+  - task: AzureFunctionApp@1
+    displayName: 'Deploy Azure Function App'
+    inputs:
+      azureSubscription: '$(azureSubscription)'
+      appType: functionApp
+      appName: '$(functionAppName)'
+      package: '$(Pipeline.Workspace)/drop/$(Build.BuildId).zip'

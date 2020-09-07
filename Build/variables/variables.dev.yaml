@@ -1,0 +1,7 @@
+variables:
+- name: functionAppName
+  value: ccaztestdemo
+- name: storageAccountConfiguration.VipContainer
+  value: vip-customers
+- name: storageAccountConfiguration.RegularContainer
+  value: regular-customers  
