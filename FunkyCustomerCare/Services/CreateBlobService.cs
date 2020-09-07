@@ -29,11 +29,10 @@ namespace FunkyCustomerCare.Services
                 var blobServiceClient = new BlobServiceClient(_storageAccountConfiguration.ConnectionString);
 
                 var blobContainerClient = blobServiceClient.GetBlobContainerClient(request.Container);
-                var containerExists = await blobContainerClient.ExistsAsync(CancellationToken.None);
-                if (!containerExists)
-                {
-                    return Result.Failure($"{request.Container} does not exist.");
-                }
+                
+                // Create the BLOB container if it does not exist
+                await blobContainerClient.CreateIfNotExistsAsync();
+                
 
                 var blobClient = blobContainerClient.GetBlobClient(request.FileName);
 

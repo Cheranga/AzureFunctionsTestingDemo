@@ -99,7 +99,7 @@ namespace FunkyCustomerCare.Integration.Tests
         }
 
         [Fact]
-        public Task VipRequests()
+        public Task VipCustomers()
         {
             this.Given(x => GivenRequestIsForVipCustomer())
                 .When(x => WhenTheEndpointIsCalled())
@@ -108,6 +108,36 @@ namespace FunkyCustomerCare.Integration.Tests
                 .BDDfy();
 
             return Task.CompletedTask;
+        }
+
+        [Fact]
+        public Task RegularCustomers()
+        {
+            this.Given(x => GivenRequestIsForRegularCustomer())
+                .When(x => WhenTheEndpointIsCalled())
+                .Then(x => ThenMustReturnAcceptedResponse())
+                .And(x => ThenMustCreateBlobInRegularContainer())
+                .BDDfy();
+
+            return Task.CompletedTask;
+        }
+
+        private async Task ThenMustCreateBlobInRegularContainer()
+        {
+            var content = await _testsInitializer.BlobService.GetContentAsync("regular-customers", _request.Id);
+
+            content.Should().NotBeNullOrEmpty();
+
+            var uploadedData = JsonConvert.DeserializeObject<CategorizeCustomerRequest>(content);
+            uploadedData.Should().NotBeNull();
+        }
+
+        private async Task GivenRequestIsForRegularCustomer()
+        {
+            _request = _testsInitializer.Fixture.Create<CategorizeCustomerRequest>();
+            _request.AmountSpent = 100;
+
+            _httpRequest = await GetMockedRequest(JsonConvert.SerializeObject(_request));
         }
 
         private async Task ThenMustCreateBlobInVipContainer()

@@ -25,14 +25,13 @@ namespace FunkyCustomerCare.Integration.Tests.Util
             try
             {
                 var blobContainer = _blobClient.GetContainerReference(container);
+
                 var containerExists = await blobContainer.ExistsAsync();
 
                 if (!containerExists)
                 {
                     return string.Empty;
                 }
-
-                
 
                 var blob = blobContainer.GetBlobReference(fileName);
                 var blobExists = await blob.ExistsAsync();
