@@ -16,7 +16,7 @@ steps:
       csmParametersFile: '$(Pipeline.Workspace)/deploy/template.parameters.json'
       overrideParameters: |
         -appName "$(functionAppName)" 
-        -CustomerApiConfig:Url "$(customerApiConfig.Url)"         
+        -CustomerApiConfig.Url "$(customerApiConfig.Url)"         
         -StorageAccountConfiguration.VipContainer "$(storageAccountConfiguration.VipContainer)" 
         -StorageAccountConfiguration.RegularContainer "$(storageAccountConfiguration.RegularContainer)" 
         

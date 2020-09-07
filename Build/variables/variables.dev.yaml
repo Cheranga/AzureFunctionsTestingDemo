@@ -5,3 +5,5 @@ variables:
   value: vip-customers
 - name: storageAccountConfiguration.RegularContainer
   value: regular-customers  
+- name: customerApiConfig.Url
+  value: https://www.dev-ccaztestdemoapi.com

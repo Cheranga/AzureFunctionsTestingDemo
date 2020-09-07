@@ -9,6 +9,13 @@
                 "description": "The name of the function app that you wish to create."
             }
         },        
+        "CustomerApiConfig.Url": {
+            "type":"string",
+            "defaultValue":"TBD",
+            "metadata": {
+                "description": "The customer API"
+            }
+        },
         "StorageAccountConfiguration.VipContainer": {
             "type":"string",
             "defaultValue":"vip-customers",
@@ -82,6 +89,7 @@
                         "[resourceId('Microsoft.Web/sites', variables('functionAppName'))]"
                     ],                  
                     "properties": {
+                        "CustomerApiConfig:Url": "[parameters('CustomerApiConfig.Url')]",
                         "StorageAccountConfiguration:ConnectionString":"[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountid'),'2015-05-01-preview').key1)]",
                         "StorageAccountConfiguration:VipContainer": "[parameters('StorageAccountConfiguration.VipContainer')]",
                         "StorageAccountConfiguration:RegularContainer": "[parameters('StorageAccountConfiguration.RegularContainer')]",
