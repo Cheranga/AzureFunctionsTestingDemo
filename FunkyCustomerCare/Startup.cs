@@ -1,20 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using FluentValidation;
 using FunkyCustomerCare;
 using FunkyCustomerCare.Config;
-using FunkyCustomerCare.Functions;
 using FunkyCustomerCare.Services;
-using FunkyCustomerCare.Validators;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Azure.WebJobs.Host.Bindings;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-[assembly:FunctionsStartup(typeof(Startup))]
+[assembly: FunctionsStartup(typeof(Startup))]
+
 namespace FunkyCustomerCare
 {
     public class Startup : FunctionsStartup
@@ -37,7 +33,7 @@ namespace FunkyCustomerCare
             return configuration;
         }
 
-        protected virtual void RegisterDependencies(IFunctionsHostBuilder builder)
+        public override void Configure(IFunctionsHostBuilder builder)
         {
             var services = builder.Services;
 
@@ -68,11 +64,6 @@ namespace FunkyCustomerCare
             services.AddSingleton<ICreateBlobService, CreateBlobService>();
 
             services.AddValidatorsFromAssembly(typeof(Startup).Assembly, ServiceLifetime.Singleton);
-        }
-
-        public override void Configure(IFunctionsHostBuilder builder)
-        {
-            RegisterDependencies(builder);
         }
     }
 }

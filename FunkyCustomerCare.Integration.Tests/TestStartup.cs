@@ -21,9 +21,9 @@ namespace FunkyCustomerCare.Integration.Tests
             return configuration;
         }
 
-        protected override void RegisterDependencies(IFunctionsHostBuilder builder)
+        public override void Configure(IFunctionsHostBuilder builder)
         {
-            base.RegisterDependencies(builder);
+            base.Configure(builder);
 
             var services = builder.Services;
 
