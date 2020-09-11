@@ -56,7 +56,6 @@ namespace FunkyCustomerCare.Integration.Tests
             if (_emulator != null)
             {
                 BlobService.DeleteBlobsAsync().Wait();
-                //_emulator.Stop();
             }
         }
     }

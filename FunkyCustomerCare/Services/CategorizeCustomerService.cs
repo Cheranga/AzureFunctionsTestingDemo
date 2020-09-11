@@ -23,7 +23,7 @@ namespace FunkyCustomerCare.Services
             try
             {
                 //
-                // TODO: Implement the service where it create
+                // TODO: Implement the actual service where it categorizes the customer
                 //
 
                 await Task.Delay(TimeSpan.FromSeconds(2));

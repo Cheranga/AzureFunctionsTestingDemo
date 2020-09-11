@@ -1,18 +1,13 @@
-using System;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 using AutoFixture;
 using FluentAssertions;
 using FluentValidation;
 using FunkyCustomerCare.DTO;
 using FunkyCustomerCare.Functions;
-using FunkyCustomerCare.Integration.Tests.Util;
 using FunkyCustomerCare.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Storage;
-using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -52,12 +47,6 @@ namespace FunkyCustomerCare.Integration.Tests
             var blobService = _testsInitializer.ServiceProvider.GetRequiredService<ICreateBlobService>();
             var validator = _testsInitializer.ServiceProvider.GetRequiredService<IValidator<CategorizeCustomerRequest>>();
 
-            CloudStorageAccount.TryParse("UseDevelopmentStorage=true;", out var mockedResult);
-
-            var binder = new Mock<Binder>(){CallBase = true};
-            binder.Setup(x => x.BindAsync<CloudStorageAccount>(It.IsAny<StorageAccountAttribute>(), CancellationToken.None))
-                .ReturnsAsync(mockedResult);
-
             _function = new CategorizeCustomerFunction(categorizeCustomerService, blobService, validator, Mock.Of<ILogger<CategorizeCustomerFunction>>());
 
             _response = await _function.CreateAsync(_httpRequest);
@@ -93,30 +82,6 @@ namespace FunkyCustomerCare.Integration.Tests
             this.Given(x => GivenRequestIsInvalid(fileName))
                 .When(x => WhenTheEndpointIsCalled())
                 .Then(x => ThenMustReturnBadRequestResponse())
-                .BDDfy();
-
-            return Task.CompletedTask;
-        }
-
-        [Fact]
-        public Task VipCustomers()
-        {
-            this.Given(x => GivenRequestIsForVipCustomer())
-                .When(x => WhenTheEndpointIsCalled())
-                .Then(x => ThenMustReturnAcceptedResponse())
-                .And(x => ThenMustCreateBlobInVipContainer())
-                .BDDfy();
-
-            return Task.CompletedTask;
-        }
-
-        [Fact]
-        public Task RegularCustomers()
-        {
-            this.Given(x => GivenRequestIsForRegularCustomer())
-                .When(x => WhenTheEndpointIsCalled())
-                .Then(x => ThenMustReturnAcceptedResponse())
-                .And(x => ThenMustCreateBlobInRegularContainer())
                 .BDDfy();
 
             return Task.CompletedTask;
@@ -164,6 +129,30 @@ namespace FunkyCustomerCare.Integration.Tests
             _request.AmountSpent = 1200;
 
             _httpRequest = await GetMockedRequest(JsonConvert.SerializeObject(_request));
+        }
+
+        [Fact]
+        public Task RegularCustomers()
+        {
+            this.Given(x => GivenRequestIsForRegularCustomer())
+                .When(x => WhenTheEndpointIsCalled())
+                .Then(x => ThenMustReturnAcceptedResponse())
+                .And(x => ThenMustCreateBlobInRegularContainer())
+                .BDDfy();
+
+            return Task.CompletedTask;
+        }
+
+        [Fact]
+        public Task VipCustomers()
+        {
+            this.Given(x => GivenRequestIsForVipCustomer())
+                .When(x => WhenTheEndpointIsCalled())
+                .Then(x => ThenMustReturnAcceptedResponse())
+                .And(x => ThenMustCreateBlobInVipContainer())
+                .BDDfy();
+
+            return Task.CompletedTask;
         }
     }
 }
