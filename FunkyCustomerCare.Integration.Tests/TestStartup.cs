@@ -25,23 +25,10 @@ namespace FunkyCustomerCare.Integration.Tests
         {
             base.Configure(builder);
 
+            //
+            // If required override the dependencies here
+            //
             var services = builder.Services;
-
-            services.AddSingleton(provider =>
-            {
-                var configuration = GetConfigurationRoot(builder);
-                var localRuntimeSettings = new LocalRuntimeSettings();
-                configuration.GetSection("Values:LocalRuntimeSettings").Bind(localRuntimeSettings);
-
-                return localRuntimeSettings;
-            });
         }
-    }
-
-    public class LocalRuntimeSettings
-    {
-        public string DotnetExecutablePath { get; set; }
-        public string FunctionHostPath { get; set; }
-        public string FunctionApplicationPath { get; set; }
     }
 }
