@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using FunkyCustomerCare.Functions;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,6 +30,8 @@ namespace FunkyCustomerCare.Integration.Tests
             // If required override the dependencies here
             //
             var services = builder.Services;
+
+            services.AddTransient<CategorizeCustomerFunction>();
         }
     }
 }

@@ -43,11 +43,7 @@ namespace FunkyCustomerCare.Integration.Tests
 
         private async Task WhenTheEndpointIsCalled()
         {
-            var categorizeCustomerService = _testsInitializer.ServiceProvider.GetRequiredService<ICategorizeCustomerService>();
-            var blobService = _testsInitializer.ServiceProvider.GetRequiredService<ICreateBlobService>();
-            var validator = _testsInitializer.ServiceProvider.GetRequiredService<IValidator<CategorizeCustomerRequest>>();
-
-            _function = new CategorizeCustomerFunction(categorizeCustomerService, blobService, validator, Mock.Of<ILogger<CategorizeCustomerFunction>>());
+            _function = _testsInitializer.ServiceProvider.GetService<CategorizeCustomerFunction>();
 
             _response = await _function.CreateAsync(_httpRequest);
         }
