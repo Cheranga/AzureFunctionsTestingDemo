@@ -95,7 +95,8 @@
             "name": "[variables('roleNameGuid')]",
             "scope": "[concat('Microsoft.Storage/storageAccounts', '/', variables('storageName'))]",
             "dependsOn": [
-                "[variables('storageName')]"
+                "[variables('storageName')]",
+                "[parameters('appName')]"
             ],
             "properties": {
                 "roleDefinitionId": "[variables('storageBlobDataContributor')]",
