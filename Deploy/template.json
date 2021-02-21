@@ -1,31 +1,31 @@
 {
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
-    "parameters": {        
+    "parameters": {
         "appName": {
             "type": "string",
-            "defaultValue":"TBD",
+            "defaultValue": "TBD",
             "metadata": {
                 "description": "The name of the function app that you wish to create."
             }
-        },        
+        },
         "CustomerApiConfig.Url": {
-            "type":"string",
-            "defaultValue":"TBD",
+            "type": "string",
+            "defaultValue": "TBD",
             "metadata": {
                 "description": "The customer API"
             }
         },
         "StorageAccountConfiguration.VipContainer": {
-            "type":"string",
-            "defaultValue":"vip-customers",
+            "type": "string",
+            "defaultValue": "vip-customers",
             "metadata": {
                 "description": "The BLOB container where the VIP customer data will be stored."
             }
         },
         "StorageAccountConfiguration.RegularContainer": {
-            "type":"string",
-            "defaultValue":"regular-customers",
+            "type": "string",
+            "defaultValue": "regular-customers",
             "metadata": {
                 "description": "The BLOB container where the VIP customer data will be stored."
             }
@@ -34,10 +34,11 @@
     "variables": {
         "functionAppName": "[parameters('appName')]",
         "hostingPlanName": "[concat(parameters('appName'),'asp')]",
-        "applicationInsightsName": "[concat(parameters('appName'),'ins')]",        
+        "applicationInsightsName": "[concat(parameters('appName'),'ins')]",
         "storageAccountName": "[toLower(replace(concat(parameters('appName'),'sg'),'-',''))]",
-        "storageAccountid": "[concat(resourceGroup().id,'/providers/','Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",        
+        "storageAccountid": "[concat(resourceGroup().id,'/providers/','Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
         "functionWorkerRuntime": "dotnet",
+        "storageBlobDataContributor": "[concat('/subscriptions', subscription().subscriptionId, 'providers/Microsoft.Authorization/roleDefinitions/','ba92f5b4-2d11-453d-a403-e96b0029c9fe')]",
         "timeZone": "AUS Eastern Standard Time"
     },
     "resources": [
@@ -84,7 +85,19 @@
                         "[variables('storageAccountName')]"
                     ]
                 }
-            ]          
+            ]
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/providers/roleAssignments",
+            "apiVersion": "2018-09-01-preview",
+            "name": "[concat(variables('storageAccountName'), '/Microsoft.Authorization/', guid(uniqueString(parameters('appName'))))]",
+            "dependsOn": [
+                "[variables('storageAccountName')]"
+            ],
+            "properties": {
+                "roleDefinitionId": "[variables('storageBlobDataContributor')]",
+                "principalId": "[reference(concat('Microsoft.Web/sites/',  parameters('appName'), '/providers/Microsoft.ManagedIdentity/Identities/default'), '2015-08-31-PREVIEW').principalId]"
+            }
         },
         {
             "apiVersion": "2015-08-01",
@@ -105,10 +118,10 @@
                     "apiVersion": "2015-08-01",
                     "dependsOn": [
                         "[resourceId('Microsoft.Web/sites', variables('functionAppName'))]"
-                    ],                  
+                    ],
                     "properties": {
                         "CustomerApiConfig:Url": "[parameters('CustomerApiConfig.Url')]",
-                        "StorageAccountConfiguration:ConnectionString":"[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountid'),'2015-05-01-preview').key1)]",
+                        "StorageAccountConfiguration:ConnectionString": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountid'),'2015-05-01-preview').key1)]",
                         "StorageAccountConfiguration:VipContainer": "[parameters('StorageAccountConfiguration.VipContainer')]",
                         "StorageAccountConfiguration:RegularContainer": "[parameters('StorageAccountConfiguration.RegularContainer')]",
                         "WEBSITE_ENABLE_SYNC_UPDATE_SITE": "true",
@@ -118,7 +131,7 @@
                         "FUNCTIONS_EXTENSION_VERSION": "~3",
                         "WEBSITE_NODE_DEFAULT_VERSION": "~10",
                         "APPINSIGHTS_INSTRUMENTATIONKEY": "[reference(resourceId('microsoft.insights/components/', variables('applicationInsightsName')), '2015-05-01').InstrumentationKey]",
-                        "FUNCTIONS_WORKER_RUNTIME": "[variables('functionWorkerRuntime')]",                        
+                        "FUNCTIONS_WORKER_RUNTIME": "[variables('functionWorkerRuntime')]",
                         "WEBSITE_TIME_ZONE": "[variables('timeZone')]"
                     }
                 }
