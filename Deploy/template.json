@@ -38,6 +38,8 @@
         "storageAccountName": "[toLower(replace(concat(parameters('appName'),'sg'),'-',''))]",
         "storageAccountid": "[concat(resourceGroup().id,'/providers/','Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
         "functionWorkerRuntime": "dotnet",
+        "roleNameGuid": "[newGuid()]",
+        "storageName": "[concat('storage', uniqueString(resourceGroup().id))]",
         "storageBlobDataContributor": "[concat('/subscriptions', subscription().subscriptionId, 'providers/Microsoft.Authorization/roleDefinitions/','ba92f5b4-2d11-453d-a403-e96b0029c9fe')]",
         "timeZone": "AUS Eastern Standard Time"
     },
@@ -88,11 +90,12 @@
             ]
         },
         {
-            "type": "Microsoft.Storage/storageAccounts/providers/roleAssignments",
-            "apiVersion": "2018-09-01-preview",
-            "name": "[concat(variables('storageAccountName'), '/Microsoft.Authorization/', guid(uniqueString(parameters('appName'))))]",
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2020-04-01-preview",
+            "name": "[variables('roleNameGuid')]",
+            "scope": "[concat('Microsoft.Storage/storageAccounts', '/', variables('storageName'))]",
             "dependsOn": [
-                "[variables('storageAccountName')]"
+                "[variables('storageName')]"
             ],
             "properties": {
                 "roleDefinitionId": "[variables('storageBlobDataContributor')]",
